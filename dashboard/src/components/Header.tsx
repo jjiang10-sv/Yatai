@@ -13,6 +13,7 @@ import { headerHeight, resourceIconMapping, yataiOrgHeader } from '@/consts'
 import { SidebarContext } from '@/contexts/SidebarContext'
 import logo from '@/assets/logo.svg'
 import logoDark from '@/assets/logo-dark.svg'
+import ykLogo from '@/assets/ykLogo.png'
 import useTranslation from '@/hooks/useTranslation'
 import { createOrganization, fetchCurrentOrganization } from '@/services/organization'
 import { Select, Value } from 'baseui/select'
@@ -352,12 +353,12 @@ export default function Header() {
     const languageOptions = useMemo(() => {
         return [
             {
-                id: 'en',
-                text: 'English',
-            },
-            {
                 id: 'zh-CN',
                 text: '简体中文',
+            },
+            {
+                id: 'en',
+                text: 'English',
             },
             {
                 id: 'zh-TW',
@@ -433,12 +434,13 @@ export default function Header() {
                 >
                     <img
                         style={{
-                            width: 26,
                             height: 26,
+                            marginBottom: -12,
                             display: 'inline-flex',
                             transition: 'all 250ms cubic-bezier(0.7, 0.1, 0.33, 1) 0ms',
                         }}
-                        src={currentThemeType === 'light' ? logo : logoDark}
+                        // src={currentThemeType === 'light' ? logo : logoDark}
+                        src={ykLogo}
                         alt='logo'
                     />
                 </div>
@@ -450,7 +452,7 @@ export default function Header() {
                             fontFamily: 'Zen Tokyo Zoo',
                         }}
                     >
-                        YATAI
+                        云控智行
                     </Text>
                 )}
             </Link>
@@ -576,7 +578,8 @@ export default function Header() {
                 </>
             )}
             <div style={{ flexGrow: 1 }} />
-            <div
+            {/* 注释右边的语言切换和主题颜色切换功能 */}
+            {/* <div
                 className={css({
                     'flexShrink': 0,
                     'height': '100%',
@@ -628,7 +631,7 @@ export default function Header() {
                         options={languageOptions}
                     />
                 </div>
-            </div>
+            </div> */}
             {currentUser && (
                 <div className={styles.userWrapper}>
                     <div className={styles.userAvatarWrapper}>

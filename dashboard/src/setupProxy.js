@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const proxy = require('http-proxy-middleware')
-
 // eslint-disable-next-line no-undef
 module.exports = (app) => {
     app.use(

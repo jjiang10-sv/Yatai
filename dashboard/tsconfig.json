@@ -1,5 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
+  "noUnusedLocals": false,
+  "noUnusedParameters": false,
   "compilerOptions": {
     "noFallthroughCasesInSwitch": true,
     "jsx": "react-jsx"

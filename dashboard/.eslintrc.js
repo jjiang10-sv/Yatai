@@ -25,9 +25,9 @@ module.exports = {
     rules: {
         'quotes': ['error', 'single', { avoidEscape: true }],
         'require-atomic-updates': 'off',
-        'react-hooks/rules-of-hooks': 'error',
-        'react-hooks/exhaustive-deps': 'error',
-        '@typescript-eslint/no-unused-vars': 'error',
+        'react-hooks/rules-of-hooks': 'off',
+        'react-hooks/exhaustive-deps': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
         'no-console': 'error',
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',

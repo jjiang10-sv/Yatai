@@ -234,7 +234,8 @@ export default function BaseSidebar({ navItems, style, title, icon, settingsPath
                     history.push(item.itemId)
                 }}
             />
-            <div>
+            {/* 注释底部社区 */}
+            {/* <div>
                 <div style={bottomItemStyle}>
                     <CgCommunity />
                     <Link href='https://join.slack.bentoml.org' target='_blank'>
@@ -365,7 +366,7 @@ export default function BaseSidebar({ navItems, style, title, icon, settingsPath
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

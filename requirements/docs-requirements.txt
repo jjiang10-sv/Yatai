@@ -1,6 +1,6 @@
 # Docs dependencies
 setuptools>=62.0.0
-sphinx>=5
+sphinx==4.5.0
 myst-parser
 sphinx-click>=3.0.2
 furo
@@ -14,4 +14,4 @@ sphinx-design
 pyenchant
 Jinja2>=3.1
 sphinx-autobuild
-sphinx_lfs_content==1.1.4
+sphinx_lfs_content

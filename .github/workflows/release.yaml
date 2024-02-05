@@ -104,16 +104,16 @@ jobs:
           mv /tmp/buildx-cache-new /tmp/buildx-cache
         if: steps.check-s3.outputs.exists == 'false'
 
-      - name: Upload api-server artifacts
-        uses: prewk/s3-cp-action@v2
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ap-northeast-1
-          source: './bin/'
-          dest: 's3://yatai-github-artifacts/api-server/${{ steps.vars.outputs.api_server_hash }}'
-          flags: --recursive
-        if: steps.check-s3.outputs.exists == 'false'
+      # - name: Upload api-server artifacts
+      #   uses: prewk/s3-cp-action@v2
+      #   with:
+      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws_region: ap-northeast-1
+      #     source: './bin/'
+      #     dest: 's3://yatai-github-artifacts/api-server/${{ steps.vars.outputs.api_server_hash }}'
+      #     flags: --recursive
+      #   if: steps.check-s3.outputs.exists == 'false'
 
   release-image:
     runs-on: ubuntu-latest
@@ -131,25 +131,25 @@ jobs:
           echo "::set-output name=dashboard_hash::${{ hashFiles('./dashboard/**') }}"
           echo "::set-output name=api_server_hash::${{ hashFiles('./api-server/**', './common/**', '**/go.sum', '**go.mod') }}"
 
-      - name: Download dashboard artifacts
-        uses: prewk/s3-cp-action@v2
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ap-northeast-1
-          dest: './dashboard/build/'
-          source: 's3://yatai-github-artifacts/dashboard/${{ steps.vars.outputs.dashboard_hash }}'
-          flags: --recursive
+      # - name: Download dashboard artifacts
+      #   uses: prewk/s3-cp-action@v2
+      #   with:
+      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws_region: ap-northeast-1
+      #     dest: './dashboard/build/'
+      #     source: 's3://yatai-github-artifacts/dashboard/${{ steps.vars.outputs.dashboard_hash }}'
+      #     flags: --recursive
 
-      - name: Download api-server artifacts
-        uses: prewk/s3-cp-action@v2
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ap-northeast-1
-          dest: './bin/'
-          source: 's3://yatai-github-artifacts/api-server/${{ steps.vars.outputs.api_server_hash }}'
-          flags: --recursive
+      # - name: Download api-server artifacts
+      #   uses: prewk/s3-cp-action@v2
+      #   with:
+      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws_region: ap-northeast-1
+      #     dest: './bin/'
+      #     source: 's3://yatai-github-artifacts/api-server/${{ steps.vars.outputs.api_server_hash }}'
+      #     flags: --recursive
 
       - name: Login to Quay.io
         uses: docker/login-action@v1
@@ -172,56 +172,56 @@ jobs:
           VERSION: ${{ steps.tag.outputs.tag }}
         run: make tag-release
 
-  release-helm-charts:
-    runs-on: ubuntu-latest
+  # release-helm-charts:
+  #   runs-on: ubuntu-latest
 
-    outputs:
-      tag: ${{ steps.tag.outputs.tag }}
+  #   outputs:
+  #     tag: ${{ steps.tag.outputs.tag }}
 
-    needs:
-      - release-image
+  #   needs:
+  #     - release-image
 
-    defaults:
-      run:
-        shell: bash
+  #   defaults:
+  #     run:
+  #       shell: bash
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.8.1
+  #     - name: Set up Helm
+  #       uses: azure/setup-helm@v1
+  #       with:
+  #         version: v3.8.1
 
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
-        with:
-          strip_v: true
+  #     - name: Get tag
+  #       id: tag
+  #       uses: dawidd6/action-get-tag@v1
+  #       with:
+  #         strip_v: true
 
-      - name: Check tag
-        id: check-tag
-        run: |
-          if [[ "${{ github.event.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+\-d[0-9]+$ ]]; then
-              echo ::set-output name=match::true
-          fi
+  #     - name: Check tag
+  #       id: check-tag
+  #       run: |
+  #         if [[ "${{ github.event.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+\-d[0-9]+$ ]]; then
+  #             echo ::set-output name=match::true
+  #         fi
 
-      - name: Package, Index and Publish to public repo
-        working-directory: ./helm/yatai
-        if: steps.check-tag.outputs.match != 'true'
-        env:
-          VERSION: ${{ steps.tag.outputs.tag }}
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: make release
+  #     - name: Package, Index and Publish to public repo
+  #       working-directory: ./helm/yatai
+  #       if: steps.check-tag.outputs.match != 'true'
+  #       env:
+  #         VERSION: ${{ steps.tag.outputs.tag }}
+  #         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+  #       run: make release
 
-      - name: Package, Index and Publish to devel repo
-        working-directory: ./helm/yatai
-        if: steps.check-tag.outputs.match == 'true'
-        env:
-          VERSION: ${{ steps.tag.outputs.tag }}
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: make release-devel
+  #     - name: Package, Index and Publish to devel repo
+  #       working-directory: ./helm/yatai
+  #       if: steps.check-tag.outputs.match == 'true'
+  #       env:
+  #         VERSION: ${{ steps.tag.outputs.tag }}
+  #         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+  #       run: make release-devel
 
-concurrency:
-  group: yatai-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: true
+# concurrency:
+#   group: yatai-${{ github.event.pull_request.number || github.sha }}
+#   cancel-in-progress: true

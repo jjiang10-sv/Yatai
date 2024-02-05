@@ -9,8 +9,9 @@ import { Button } from 'baseui/button'
 import { Input } from 'baseui/input'
 import qs from 'qs'
 import React, { useCallback, useState } from 'react'
-import logo from '@/assets/logo.svg'
-import logoDark from '@/assets/logo-dark.svg'
+// import logo from '@/assets/logo.svg'
+// import logoDark from '@/assets/logo-dark.svg'
+import ykLogo from '@/assets/ykLogo.png'
 import Text from '@/components/Text'
 import { useLocation } from 'react-router-dom'
 import { useStyletron } from 'baseui'
@@ -83,12 +84,15 @@ export default function Login() {
                         >
                             <img
                                 style={{
-                                    width: 46,
+                                    // width: 46,
                                     height: 46,
+                                    marginBottom: -18,
                                     display: 'inline-flex',
                                     transition: 'all 250ms cubic-bezier(0.7, 0.1, 0.33, 1) 0ms',
                                 }}
-                                src={currentThemeType === 'light' ? logo : logoDark}
+                                className='div_logo'
+                                // src={currentThemeType === 'light' ? logo : logoDark}
+                                src={ykLogo}
                                 alt='logo'
                             />
                             <Text
@@ -97,7 +101,7 @@ export default function Login() {
                                     fontFamily: 'Zen Tokyo Zoo',
                                 }}
                             >
-                                YATAI
+                                云控智行
                             </Text>
                         </div>
                         <Form onFinish={handleFinish}>

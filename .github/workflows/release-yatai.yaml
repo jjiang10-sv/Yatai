@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  workflow_dispatch: # 允许手动触发工作流
+  push: # 当有代码推送事件发生时
+    branches:
+      - test
+
+jobs:
+
+  build-dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set vars
+        id: vars
+        run: |
+          echo "::set-output name=dashboard_hash::${{ hashFiles('./dashboard/**') }}"
+
+     
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - uses: actions/cache@v2
+        with:
+          path: '**/dashboard/node_modules'
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/dashboard/yarn.lock') }}
+       
+
+      - name: Install packages
+        run: cd dashboard; yarn
+       
+
+      - name: Build dashboard
+        run: cd dashboard; NODE_OPTIONS="--max_old_space_size=4096" yarn build
+       
+        env:
+          CI: false
+
+     
+  build-api-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set vars
+        id: vars
+        run: |
+          echo "::set-output name=api_server_hash::${{ hashFiles('./api-server/**', './common/**', '**/go.sum', '**go.mod') }}"
+
+     
+
+      - name: Buildx Cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/go.sum') }}
+       
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+       
+
+      - name: Build api-server
+        run: make docker-build-api-server
+       
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/buildx-cache
+          mv /tmp/buildx-cache-new /tmp/buildx-cache
+       
+
+  release-image:
+    runs-on: ubuntu-latest
+
+    needs:
+      - build-dashboard
+      - build-api-server
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set vars
+        id: vars
+        run: |
+          echo "::set-output name=dashboard_hash::${{ hashFiles('./dashboard/**') }}"
+          echo "::set-output name=api_server_hash::${{ hashFiles('./api-server/**', './common/**', '**/go.sum', '**go.mod') }}"
+
+      
+
+      - name: Login to Quay.io
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+
+      - name: Build yatai image
+        run: make build-image
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+
+      - name: Tag Yatai image as release
+        env:
+          VERSION: ${{ steps.tag.outputs.tag }}
+        run: make tag-release
