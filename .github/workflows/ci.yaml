@@ -86,7 +86,7 @@ jobs:
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Build yatai image
-        run: make build-push-image
+        run: make build-image
 
       # - name: Get tag
       #   id: tag
