@@ -85,7 +85,7 @@ build-image: ## Build Yatai image
 
 build-push-image: ## Build Yatai image
 	docker build -t $(YATAI_IMG) .
-	docker push $(DOCKER_REGISTRY)/yatai:$(VERSION)
+	docker push $(DOCKER_REGISTRY)/yatai:latest
 
 tag-release: ## Tag Yatai image as release
 	docker tag $(YATAI_IMG) $(DOCKER_REGISTRY)/yatai:$(VERSION)
