@@ -110,6 +110,7 @@ show-api-server-version:
 run-api-server: build-api-server-dev show-api-server-version ## Run api-server in development mode
 	@./bin/api-server serve
 
+
 fe-deps: ## Fetch frontend deps
 	@cd dashboard && yarn
 fe-build: ## Build frontend for production
