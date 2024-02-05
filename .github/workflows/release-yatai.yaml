@@ -93,11 +93,14 @@ jobs:
         run: |
           echo "::set-output name=dashboard_hash::${{ hashFiles('./dashboard/**') }}"
           echo "::set-output name=api_server_hash::${{ hashFiles('./api-server/**', './common/**', '**/go.sum', '**go.mod') }}"
+          echo "usename ${{ secrets.QUAY_USERNAME }} "
+          echo "pw ${{ secrets.QUAY_ROBOT_TOKEN }} "
 
       
 
       - name: Login to Quay.io
         uses: docker/login-action@v1
+        
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
