@@ -6,7 +6,7 @@ COPY dashboard/ .
 # COPY init.lock /app
 #RUN npm install -g yarn
 RUN yarn
-RUN yarn build
+RUN yarn build --silent
 
 
 FROM golang:1.20 as compiler
