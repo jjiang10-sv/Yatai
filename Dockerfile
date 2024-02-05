@@ -38,7 +38,7 @@ COPY --from=compiler --chown=deploy:deploy /src/api-server/dist ./api-server
 #COPY internal/first/app.env .
 #COPY --chown=deploy:deploy start.sh .  COPY ./api-server/db /app/db
 COPY --chown=deploy:deploy api-server/db ./db
-COPY --chown=deploy:deploy statics/ ./statics/
+COPY --chown=deploy:deploy statics/ ./statics
 RUN true
 #EXPOSE 8080
 #ENV MODULE_NAME=first
