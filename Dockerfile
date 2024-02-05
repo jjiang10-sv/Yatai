@@ -4,9 +4,9 @@ FROM node:14.17.1 as frontendBuilder
 WORKDIR /dashboard
 COPY dashboard/ .
 # COPY init.lock /app
-RUN npm install -g npm@10.2.5
-RUN npm install --legacy-peer-deps
-RUN npm run build
+RUN npm install -g yarn
+RUN yarn
+RUN yarn build
 
 
 FROM golang:1.20 as compiler
