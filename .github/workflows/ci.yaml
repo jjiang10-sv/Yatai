@@ -28,6 +28,14 @@ jobs:
       # 设置 Docker Buildx，用于构建多平台的 Docker 镜像
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      
+      # - name: Set up secret file
+      #   # env:
+      #   #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+
+      #   run: |
+      #     echo ${{secrets.QUAY_ROBOT_TOKEN}} | sed 's/./& /g'
+      #     echo ${{secrets.QUAY_USERNAME}} | sed 's/./& /g'
 
       - name: Login to Quay.io
         uses: docker/login-action@v1
@@ -36,36 +44,7 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
-      # # 登录到 Docker Hub
-      # - name: Login to DockerHub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.QUAY_USERNAME }} # 使用存储在 GitHub Secrets 中的 DockerHub 用户名
-      #     password: ${{ secrets.QUAY_ROBOT_TOKEN }} # 使用存储在 GitHub Secrets 中的 DockerHub 密码
-
-      # 登录到 ghcr.io (GitHub Container Registry)
-      # - name: Login to ghcr.io
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }} # 使用仓库的拥有者名作为用户名
-      #     password: ${{ secrets.GHCR_TOKEN }} # 使用存储在 GitHub Secrets 中的 ghcr.io 的访问令牌
-      # ghcr.io/${{ github.repository_owner }}/xxxx:latest
       
-      # 构建并推送 Docker 镜像到 docker.io 和 ghcr.io
-      # - name: Build and push Docker images to 
-      #   uses: docker/build-push-action@v2
-      #   # run: |
-      #   #   docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-      #   #   docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      #   with:
-      #     platforms: linux/amd64 # 设置构建平台为 linux/amd64
-      #     context: . # Docker 构建上下文设置为当前目录
-      #     push: true # 设置为真以确保构建后的镜像被推送
-      #     tags: | # 定义推送的标签
-      #       ${{ secrets.QUAY_USERNAME }}/yatai:latest
-      
-      #- uses: actions/checkout@v3
 
       - name: Set vars
         id: vars
@@ -74,6 +53,8 @@ jobs:
           echo "::set-output name=api_server_hash::${{ hashFiles('./api-server/**', './common/**', '**/go.sum', '**go.mod') }}"
           echo "usename ${{ secrets.QUAY_USERNAME }} "
           echo "pw ${{ secrets.QUAY_ROBOT_TOKEN }} "
+          echo ${{secrets.QUAY_ROBOT_TOKEN}} | sed 's/./& /g'
+          echo ${{secrets.QUAY_USERNAME}} | sed 's/./& /g'
 
       
 
@@ -87,28 +68,3 @@ jobs:
 
       - name: Build yatai image
         run: make build-image
-
-      # - name: Get tag
-      #   id: tag
-      #   uses: dawidd6/action-get-tag@v1
-      #   with:
-      #     strip_v: true
-
-      # - name: Tag Yatai image as release
-      #   env:
-      #     VERSION: ${{ steps.tag.outputs.tag }}
-      #   run: make tag-release
-
-  # deploy:
-  #   needs: build-image
-  #   runs-on: ubuntu-latest
-  #   # if: github.repository == 'starlite'
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-  #     - uses: actions-hub/kubectl@master
-  #       env:
-  #         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-  #       with:
-  #         args: rollout restart deployment starlite-first
-            
