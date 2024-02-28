@@ -62,6 +62,13 @@ type YataiConfigYaml struct {
 	S3                  *YataiS3ConfigYaml        `yaml:"s3,omitempty"`
 	NewsURL             string                    `yaml:"news_url"`
 	InitializationToken string                    `yaml:"initialization_token"`
+	Oauth2              Oauth2Config     `yaml:"oauth2"`
+}
+type Oauth2Config struct {
+	SSOIssuer    string `yaml:"sso_issuer" env:"OAUTH2_ISSUER"`
+	ClientID     string `yaml:"client_id" env:"OAUTH2_CLIENT_ID"`
+	ClientSecret string `yaml:"client_secret" env:"OAUTH2_CLIENT_SECRET"`
+	PublicKey    string `yaml:"public_key" env:"OAUTH2_PUBLIC_KEY"`
 }
 
 var YataiConfig = &YataiConfigYaml{}
@@ -201,5 +208,22 @@ func PopulateYataiConfig() error {
 		makesureS3IsNotNil()
 		YataiConfig.S3.BucketName = s3BucketName
 	}
+
+	oauth2Issuer, ok := os.LookupEnv(consts.EnvOauth2Issuer)
+	if ok {
+		YataiConfig.Oauth2.SSOIssuer = oauth2Issuer
+	}
+	oauth2ClientId, ok := os.LookupEnv(consts.EnvOauth2ClientId)
+	if ok {
+		YataiConfig.Oauth2.ClientID = oauth2ClientId
+	}
+	oauth2ClientSecret, ok := os.LookupEnv(consts.EnvOauth2ClientSecret)
+	if ok {
+		YataiConfig.Oauth2.ClientSecret = oauth2ClientSecret
+	}
+	// ADFSendpoint, ok := os.LookupEnv(consts.EnvADFSendpoint)
+	// if ok {
+	// 	YataiConfig.Oauth2.ADFS_ENDPOINT = ADFSendpoint
+	// }
 	return nil
 }

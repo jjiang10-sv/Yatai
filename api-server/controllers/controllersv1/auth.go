@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/bentoml/yatai/common/thirdpartyAuth"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 
@@ -90,4 +91,21 @@ func (*authController) ResetPassword(ctx *gin.Context, schema *schemasv1.ResetPa
 	}
 
 	return transformersv1.ToUserSchema(ctx, user)
+}
+
+func (c *authController) OAuth2(ctx *gin.Context, params *thirdpartyAuth.AuthParams) (interface{}, error) {
+
+	oath2Svc := services.NewThirdPartyAuthService(ctx)
+	oath2Svc.Auth(params)
+	return nil, nil
+}
+
+//	{
+//		"code"："532380a0-38db-49b4-9f75-ae374181929f"//有效期30秒
+//	}
+func (c *authController) ThirdPartyLogin(ctx *gin.Context, params *thirdpartyAuth.ThirdPartyLogin) (interface{}, error) {
+
+	thirdPartyySvc := services.NewThirdPartyAuthService(ctx)
+
+	return thirdPartyySvc.ThirdPartyLogin(ctx)
 }

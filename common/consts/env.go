@@ -40,4 +40,10 @@ const (
 	EnvReadHeaderTimeout = "READ_HEADER_TIMEOUT"
 
 	EnvTransmissionStrategy = "TRANSMISSION_STRATEGY"
+
+
+	EnvOauth2Issuer   = "OAUTH2_ISSUER"
+	EnvOauth2ClientId    = "OAUTH2_CLIENT_ID"
+	EnvOauth2ClientSecret = "OAUTH2_CLIENT_SECRET"
+	EnvADFSendpoint  = "ADFS_ENDPOINT"
 )

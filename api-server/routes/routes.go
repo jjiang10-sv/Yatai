@@ -395,6 +395,16 @@ func authRoutes(publicGrp *fizz.RouterGroup) {
 		fizz.Summary("Login an user"),
 	}, tonic.Handler(controllersv1.AuthController.Login, 200))
 
+	publicGrp.GET("/oauth2", []fizz.OperationOption{
+		fizz.ID("Oauth2 SSO"),
+		fizz.Summary("Oauth2 SSO"),
+	}, tonic.Handler(controllersv1.AuthController.OAuth2, 200))
+
+	publicGrp.GET("/cloud-third-auth/third-login", []fizz.OperationOption{
+		fizz.ID("third party login"),
+		fizz.Summary("third party login"),
+	}, tonic.Handler(controllersv1.AuthController.ThirdPartyLogin, 200))
+
 	grp.GET("/current", []fizz.OperationOption{
 		fizz.ID("Get current user"),
 		fizz.Summary("Get current user"),
@@ -404,6 +414,7 @@ func authRoutes(publicGrp *fizz.RouterGroup) {
 		fizz.ID("Reset password"),
 		fizz.Summary("Reset password"),
 	}, tonic.Handler(controllersv1.AuthController.ResetPassword, 200))
+	
 }
 
 func userRoutes(grp *fizz.RouterGroup) {

@@ -9,10 +9,12 @@ require (
 	github.com/bentoml/yatai-image-builder v1.1.1-0.20230108162700-337f26f7f704
 	github.com/bentoml/yatai-schemas v0.0.0-20230210160650-fd8186673c80
 	github.com/bits-and-blooms/bloom/v3 v3.3.1
+	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang-migrate/migrate/v4 v4.14.1
+	github.com/google/go-querystring v1.0.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/hashicorp/go-version v1.6.0
 	github.com/huandu/xstrings v1.3.3
@@ -26,9 +28,11 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/panjf2000/ants/v2 v2.4.8
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.14.0
 	github.com/rs/xid v1.4.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.4.0
+	github.com/tevjef/go-runtime-metrics v0.0.0-20170326170900-527a54029307
 	github.com/tianweidut/cron v0.0.0-20201116081805-584849f819e1
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/viney-shih/go-lock v1.1.1
@@ -36,7 +40,9 @@ require (
 	go.elastic.co/apm/module/apmgormv2 v1.13.0
 	go.uber.org/atomic v1.10.0
 	go.uber.org/multierr v1.8.0
+	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.6.0
+	golang.org/x/oauth2 v0.2.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.21.12
 	k8s.io/api v0.25.9
@@ -126,7 +132,6 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
@@ -140,11 +145,9 @@ require (
 	go.elastic.co/apm/module/apmsql v1.13.0 // indirect
 	go.elastic.co/fastjson v1.1.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
-	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/oauth2 v0.2.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
