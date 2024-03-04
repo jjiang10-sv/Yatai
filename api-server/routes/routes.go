@@ -335,8 +335,21 @@ func getLoginUser(ctx *gin.Context) (user *models.User, err error) {
 		apiCache := cache.NewSingleCache()
 		if apiCache.IsUserTokenValid(userTokenStr) {
 			if apiCache.IsPermitted(userTokenStr,ctx.Request.URL.Path,ctx.Request.Method){
-				
+				username := apiCache.Cache.Get(userTokenStr).Value().UserName
+				// register alreasy set
+				//scookie.SetUsernameToCookie(ctx,username)
+				user, err = services.UserService.GetByName(ctx, username)
+				if err != nil {
+					err = errors.Wrapf(err, "get user by name in cookie %s", username)
+					return
+				}
+			}else {
+				err = errors.New("have no permission to access")
+				return
 			}
+		}else {
+			err = errors.New("Access Token expires, please login again")
+			return
 		}
 	} else {
 		username := scookie.GetUsernameFromCookie(ctx)

@@ -1,22 +1,31 @@
 package cache
 
 import (
+	"regexp"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/jellydator/ttlcache/v3"
 	//"github.com/jellydator/ttlcache/v3/cache"
 )
+
 //type APICache ttlcache.Cache[string, []ApiRecord]
 
 type APICache struct {
-	Cache *ttlcache.Cache[string, []ApiRecord]
+	Cache *ttlcache.Cache[string, UserCacheData]
 }
+
 var (
 	//instance *ttl.Cache[string, []ApiRecord]
 	instance *APICache
 	once     sync.Once
 )
+
+type UserCacheData struct {
+	UserName   string
+	ApiRecords []ApiRecord
+}
 
 // "securityLevel"：1，//安全级别
 // "apiMethod"："GET"，//请求方式POSTGETPUT
@@ -42,8 +51,8 @@ type ApiRecord struct {
 func NewSingleCache() *APICache {
 	once.Do(func() {
 		// todo handle error
-		cache := ttlcache.New[string, []ApiRecord](
-			ttlcache.WithTTL[string, []ApiRecord](2 * time.Minute),
+		cache := ttlcache.New[string, UserCacheData](
+			ttlcache.WithTTL[string, UserCacheData](2 * time.Hour),
 		)
 		go cache.Start() // starts automatic expired item deletion
 		instance = &APICache{Cache: cache}
@@ -54,12 +63,19 @@ func NewSingleCache() *APICache {
 
 func (t *APICache) IsUserTokenValid(userToken string) bool {
 	return t.Cache.Has(userToken)
-	
+
 }
 
-func (t *APICache) IsPermitted(userToken, apiPath,apiMethod string) bool {
+// /api/v1/auth/current
+func (t *APICache) IsPermitted(userToken, apiPath, apiMethod string) bool {
 	apiPermitted := t.Cache.Get(userToken)
-	for _, item := range apiPermitted.Value(){
+	pattern := regexp.MustCompile(`{([^{}]+)}`)
+
+	// Replace "{apiCode}" with "apiCode"
+	apiPath = pattern.ReplaceAllString(apiPath, "$1")
+	apiMethod = strings.ToLower(apiMethod)
+
+	for _, item := range apiPermitted.Value().ApiRecords {
 		if item.ApiMethod == apiMethod && item.ApiRouter == apiPath {
 			return true
 		}
@@ -67,15 +83,14 @@ func (t *APICache) IsPermitted(userToken, apiPath,apiMethod string) bool {
 	return false
 }
 
+func (t *APICache) CheckAuth(userToken, apiPath, apiMethod string) bool {
+	if t.IsUserTokenValid(userToken) {
+		return t.IsPermitted(userToken, apiMethod, apiPath)
+	} else {
 
-func (t *APICache) CheckAuth(userToken, apiPath,apiMethod string) bool {
-	if t.IsUserTokenValid(userToken){
-		return t.IsPermitted(userToken,apiMethod,apiPath)
-	}else {
-		
 	}
 	apiPermitted := t.Cache.Get(userToken)
-	for _, item := range apiPermitted.Value(){
+	for _, item := range apiPermitted.Value().ApiRecords {
 		if item.ApiMethod == apiMethod && item.ApiRouter == apiPath {
 			return true
 		}

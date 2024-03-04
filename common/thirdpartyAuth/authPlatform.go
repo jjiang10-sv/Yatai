@@ -32,7 +32,8 @@ type AuthClient interface {
 	GetAssesToken(ctx *gin.Context) (*TokenContainer, error)
 	RefreshAssesToken(ctx *gin.Context, refreshToken string) (*TokenContainer, error)
 	GetUserToken(ctx *gin.Context, code, accessToken string) (*UserTokenParams, error)
-	GetUserApiPermissions(ctx *gin.Context) (*[]AllowedApiList, error)
+	GetUserApiPermissions(ctx *gin.Context, accessToken, userToken string) (*[]AllowedApiList, error)
+	GetUserInfoDetails(ctx *gin.Context, accessToken, userToken string) (*UserDetails, error)
 }
 
 // AuthRedirectParams defines parameters for AuthRedirect.
@@ -87,8 +88,6 @@ type UserTokenParams struct {
 	UserToken string `json:"user_token"`
 }
 
-
-
 // data"：
 // [{
 // ""：1，//安全级别
@@ -102,40 +101,40 @@ type UserTokenParams struct {
 // ""："xxxxxx"//子平台clientid
 // }]，
 
-
 type GetUserApiPermissionsResponse struct {
 	Data     []AllowedApiList `json:"data"`
-	ErrCode  uint16          `json:"error_code"`
-	ErrorMsg string          `json:"error_msg"`
+	ErrCode  uint16           `json:"error_code"`
+	ErrorMsg string           `json:"error_msg"`
 }
 
 type AllowedApiList struct {
-	SecurityLevel uint `json:"securityLevel"`
-	ApiMethod string `json:"apiMethod"`
-	ApiName string `json:"apiName"`
-	ApiRouter string `json:"apiRouter"`
-	ApiCode string `json:"apiCode"`
-	MenuParent string `json:"menuParent"`
-	ApiDomain string `json:"apiDomain"`
-	MenuType uint `json:"menuType"`
-	ClientId string `json:"client_id"`
+	SecurityLevel uint   `json:"securityLevel"`
+	ApiMethod     string `json:"apiMethod"`
+	ApiName       string `json:"apiName"`
+	ApiRouter     string `json:"apiRouter"`
+	ApiCode       string `json:"apiCode"`
+	MenuParent    string `json:"menuParent"`
+	ApiDomain     string `json:"apiDomain"`
+	MenuType      uint   `json:"menuType"`
+	ClientId      string `json:"client_id"`
 }
 
 type GetUserMenuPermissionsResponse struct {
 	Data     []AllowedMenu `json:"data"`
-	ErrCode  uint16          `json:"error_code"`
-	ErrorMsg string          `json:"error_msg"`
+	ErrCode  uint16        `json:"error_code"`
+	ErrorMsg string        `json:"error_msg"`
 }
 type AllowedMenu struct {
-	MenuCode uint `json:"menuCode"`
+	MenuCode   uint   `json:"menuCode"`
 	MenuRouter string `json:"menuRouter"`
-	MenuName string `json:"menuName"`
+	MenuName   string `json:"menuName"`
 	MenuDomain string `json:"menuDomain"`
 	MenuParent string `json:"menuParent"`
-	MenuIcon string `json:"menuIcon"`
-	MenuType uint `json:"menuType"`
-	ClientId string `json:"client_id"`
+	MenuIcon   string `json:"menuIcon"`
+	MenuType   uint   `json:"menuType"`
+	ClientId   string `json:"client_id"`
 }
+
 // ""：""，
 // ""：""，
 // ""：false，
@@ -145,21 +144,21 @@ type AllowedMenu struct {
 // ""：""，
 // ""：""
 
-
 type GetUserInfoDetailsResponse struct {
 	Data     UserDetails `json:"data"`
-	ErrCode  uint16          `json:"error_code"`
-	ErrorMsg string          `json:"error_msg"`
+	//Data     interface{} `json:"data"`
+	ErrCode  uint16      `json:"error_code"`
+	ErrorMsg string      `json:"error_msg"`
 }
 type UserDetails struct {
-	IamOpenId uint `json:"iam_openid"`
-	PrMobile string `json:"prMobile"`
-	IsFrozen string `json:"isFrozen"`
-	PrUserName string `json:"prUserName"`
-	PrStatus string `json:"prStatus"`
-	PrSex string `json:"prSex"`
-	PrUserEmail uint `json:"prUserEmail"`
-	PrPinyin string `json:"prPinyin"`
+	IamOpenId   string   `json:"iam_openid"`
+	PrMobile    string `json:"prMobile"`
+	IsFrozen    bool `json:"isFrozen"`
+	PrUserName  string `json:"prUserName"`
+	PrStatus    uint `json:"prStatus"`
+	PrSex       uint `json:"prSex"`
+	PrUserEmail string   `json:"prUserEmail"`
+	PrPinyin    string `json:"prPinyin"`
 }
 
 func NewSingleAuthClient() *authClient {
@@ -244,12 +243,12 @@ func (a *authClient) GetUserToken(ctx *gin.Context, code, accessToken string) (*
 
 }
 
-func (a *authClient) GetUserApiPermissions(ctx *gin.Context) (*[]AllowedApiList, error) {
+func (a *authClient) GetUserApiPermissions(ctx *gin.Context, accessToken, userToken string) (*[]AllowedApiList, error) {
 
-	queries := ThirdPartyLoginAccessCode{AccessToken: ctx.GetHeader(consts.HeaderAccessToken)}
+	queries := ThirdPartyLoginAccessCode{AccessToken: accessToken}
 	body := GetClientsApiBodyParams{
-		ClientId:  ctx.GetHeader(config.YataiConfig.Oauth2.ClientID),
-		UserToken: ctx.GetHeader(consts.YataiUserTokenHeaderName),
+		ClientId:  config.YataiConfig.Oauth2.ClientID,
+		UserToken: userToken,
 	}
 
 	body_, err := httpPost(queries, body, "user/get_client_apis", " Get User Api Permissions", ctx, a.client)
@@ -261,9 +260,8 @@ func (a *authClient) GetUserApiPermissions(ctx *gin.Context) (*[]AllowedApiList,
 		err = errorx.Errorf("get user api permissions failed")
 		return nil, err
 	}
-	return &res.Data,nil
+	return &res.Data, nil
 }
-
 
 func (a *authClient) GetUserMenuPermissions(ctx *gin.Context) (*[]AllowedMenu, error) {
 
@@ -279,31 +277,31 @@ func (a *authClient) GetUserMenuPermissions(ctx *gin.Context) (*[]AllowedMenu, e
 	}
 	var res GetUserMenuPermissionsResponse
 	if e := json.NewDecoder(body_).Decode(&res); e != nil {
-		err = errorx.Errorf("get user api permissions failed")
+		err = errorx.Errorf("get user menu list permissions failed")
 		return nil, err
 	}
-	return &res.Data,nil
+	return &res.Data, nil
 }
 
+func (a *authClient) GetUserInfoDetails(ctx *gin.Context, accessToken, userToken string) (*UserDetails, error) {
 
-func (a *authClient) GetUserInfoDetails(ctx *gin.Context) (*UserDetails, error) {
-
-	queries := ThirdPartyLoginAccessCode{AccessToken: ctx.GetHeader(consts.HeaderAccessToken)}
+	queries := ThirdPartyLoginAccessCode{AccessToken: accessToken}
 	body := GetClientsApiBodyParams{
 		// ClientId:  ctx.GetHeader(config.YataiConfig.Oauth2.ClientID),
-		UserToken: ctx.GetHeader(consts.YataiUserTokenHeaderName),
+		UserToken: userToken,
 	}
 
-	body_, err := httpPost(queries, body, "user/get_client_menus", " Get User Api Permissions", ctx, a.client)
+	body_, err := httpPost(queries, body, "user/get_userdetail", " Get User Api Permissions", ctx, a.client)
 	if err != nil {
 		return nil, err
 	}
 	var res GetUserInfoDetailsResponse
 	if e := json.NewDecoder(body_).Decode(&res); e != nil {
-		err = errorx.Errorf("get user api permissions failed")
+		err = errorx.Errorf("get user info defails failed")
 		return nil, err
 	}
-	return &res.Data,nil
+	//return nil, nil
+	return &res.Data, nil
 }
 
 func httpGet(params interface{}, reqPath string, msg string, ctx context.Context, client *metrics.HTTPClient) (io.ReadCloser, error) {

@@ -20,7 +20,6 @@ import (
 	"github.com/bentoml/yatai/api-server/services/tracking"
 	"github.com/bentoml/yatai/common/command"
 	"github.com/bentoml/yatai/common/sync/errsgroup"
-	"github.com/bentoml/yatai/common/utils/cache"
 )
 
 func addCron(ctx context.Context) {
@@ -117,8 +116,6 @@ func (opt *ServeOption) Run(ctx context.Context, args []string) error {
 	if err != nil {
 		return errors.Wrapf(err, "populate config file: %s", opt.ConfigPath)
 	}
-
-	cache.NewSingleCache()
 
 	err = services.MigrateUp()
 	if err != nil {

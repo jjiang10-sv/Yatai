@@ -131,7 +131,29 @@ func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdParty
 		return nil, err
 	}
 	t.GinContext.Header(consts.YataiUserTokenHeaderName, userToken.UserToken)
-	allowedApiList, err := t.GetUserApiPermissions(t.GinContext)
+	// register user
+	userInfo, err := t.GetUserInfoDetails(t.GinContext, accessToken.AccessToken, userToken.UserToken)
+	if err != nil {
+		return nil, err
+	}
+	existUser, err := UserService.GetByName(t.GinContext,userInfo.PrUserName)
+	if err != nil {
+		return nil, err
+	}
+	if existUser == nil{
+		_, err := UserService.Create(t.GinContext, CreateUserOption{
+			Name:      userInfo.PrUserName,
+			FirstName: userInfo.PrUserName,
+			LastName:  userInfo.PrUserName,
+			Email:     &userInfo.PrUserName,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	
+	// cache allowed api list
+	allowedApiList, err := t.GetUserApiPermissions(t.GinContext, accessToken.AccessToken, userToken.UserToken)
 	if err != nil {
 		return nil, err
 	}
@@ -139,26 +161,30 @@ func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdParty
 	for _, item := range *allowedApiList {
 		tmp := cache.ApiRecord{
 			SecurityLevel: uint8(item.SecurityLevel),
-			ApiMethod: item.ApiMethod,
-			ApiName: item.ApiName,
-			ApiRouter: item.ApiRouter,
-			ApiCode: item.ApiCode,
-			MenuParent: item.MenuParent,
-			ApiDomain: item.ApiDomain,
-			MenuType: uint8(item.MenuType),
-			ClientId: item.ClientId,
+			ApiMethod:     item.ApiMethod,
+			ApiName:       item.ApiName,
+			ApiRouter:     item.ApiRouter,
+			ApiCode:       item.ApiCode,
+			MenuParent:    item.MenuParent,
+			ApiDomain:     item.ApiDomain,
+			MenuType:      uint8(item.MenuType),
+			ClientId:      item.ClientId,
 		}
 		userApiListCache = append(userApiListCache, tmp)
 	}
-	cache.NewSingleCache().Cache.GetOrSet(userToken.UserToken,userApiListCache)
+	cache.NewSingleCache().Cache.GetOrSet(userToken.UserToken, cache.UserCacheData{
+		ApiRecords: userApiListCache,
+		UserName:   userInfo.PrUserName,
+	})
+
 	return "success", nil
 
 }
 
 func (t thirdPartyAuthService) GetUserApiPermissionsSvc() (interface{}, error) {
 	//todo db logic
-	uesrToken := "4fe1d1696b96444c886b64b26c1efc8d"
-	allowedApiList, err := t.GetUserApiPermissions(t.GinContext)
+	//uesrToken := "4fe1d1696b96444c886b64b26c1efc8d"
+	allowedApiList, err := t.GetUserApiPermissions(t.GinContext, "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -166,18 +192,19 @@ func (t thirdPartyAuthService) GetUserApiPermissionsSvc() (interface{}, error) {
 	for _, item := range *allowedApiList {
 		tmp := cache.ApiRecord{
 			SecurityLevel: uint8(item.SecurityLevel),
-			ApiMethod: item.ApiMethod,
-			ApiName: item.ApiName,
-			ApiRouter: item.ApiRouter,
-			ApiCode: item.ApiCode,
-			MenuParent: item.MenuParent,
-			ApiDomain: item.ApiDomain,
-			MenuType: uint8(item.MenuType),
-			ClientId: item.ClientId,
+			ApiMethod:     item.ApiMethod,
+			ApiName:       item.ApiName,
+			ApiRouter:     item.ApiRouter,
+			ApiCode:       item.ApiCode,
+			MenuParent:    item.MenuParent,
+			ApiDomain:     item.ApiDomain,
+			MenuType:      uint8(item.MenuType),
+			ClientId:      item.ClientId,
 		}
 		userApiListCache = append(userApiListCache, tmp)
 	}
-	cache.NewSingleCache().Cache.GetOrSet(uesrToken,userApiListCache)
+	//cache.NewSingleCache().Cache.GetOrSet(uesrToken,userApiListCache)
+
 	return "success", nil
 }
 
