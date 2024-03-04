@@ -1,4 +1,4 @@
-package thirdpartyAuth
+package thirdpartyauth
 
 import (
 	"context"
@@ -47,6 +47,7 @@ type ThirdPartyLogin struct {
 	// code for access token exchange
 	Code *string `query:"code"`
 }
+
 
 // AuthParams defines parameters for Auth.
 // type AuthParams struct {

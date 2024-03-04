@@ -17,7 +17,8 @@ const (
 
 	TracingContextKey = "tracing-context"
 	// nolint: gosec
-	YataiApiTokenHeaderName = "X-YATAI-API-TOKEN"
+	YataiApiTokenHeaderName  = "X-YATAI-API-TOKEN"
+	YataiUserTokenHeaderName = "X-YATAI-SSO-USER-TOKEN"
 
 	BentoServicePort       = 3000
 	BentoServicePortEnvKey = "PORT"
@@ -28,4 +29,9 @@ const (
 
 	// nolint: gosec
 	YataiK8sBotApiTokenName = "yatai-k8s-bot"
+
+	HeaderAccessToken        = "access_token"
+	HeaderRefreshToken       = "refresh_token"
+	HeaderTokenType          = "token_type"
+	HeaderTokenExpiredIn     = "expired_in"
 )

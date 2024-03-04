@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bentoml/yatai/common/thirdpartyAuth"
+	thirdpartyauth "github.com/bentoml/yatai/common/thirdPartyAuth"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 
@@ -93,7 +93,7 @@ func (*authController) ResetPassword(ctx *gin.Context, schema *schemasv1.ResetPa
 	return transformersv1.ToUserSchema(ctx, user)
 }
 
-func (c *authController) OAuth2(ctx *gin.Context, params *thirdpartyAuth.AuthParams) (interface{}, error) {
+func (c *authController) OAuth2(ctx *gin.Context, params *thirdpartyauth.AuthParams) (interface{}, error) {
 
 	oath2Svc := services.NewThirdPartyAuthService(ctx)
 	oath2Svc.Auth(params)
@@ -103,9 +103,17 @@ func (c *authController) OAuth2(ctx *gin.Context, params *thirdpartyAuth.AuthPar
 //	{
 //		"code"："532380a0-38db-49b4-9f75-ae374181929f"//有效期30秒
 //	}
-func (c *authController) ThirdPartyLogin(ctx *gin.Context, params *thirdpartyAuth.ThirdPartyLogin) (interface{}, error) {
-
+func (c *authController) ThirdPartyLogin(ctx *gin.Context, params *thirdpartyauth.ThirdPartyLogin) (interface{}, error) {
 	thirdPartyySvc := services.NewThirdPartyAuthService(ctx)
+	return thirdPartyySvc.ThirdPartyLogin(params)
+}
+func (c *authController) GetUserApiPermissonCrl(ctx *gin.Context) (interface{}, error) {
+	thirdPartyySvc := services.NewThirdPartyAuthService(ctx)
+	return thirdPartyySvc.GetUserApiPermissionsSvc()
+}
 
-	return thirdPartyySvc.ThirdPartyLogin(ctx)
+func (c *authController) RefreshAccessToken(ctx *gin.Context) (interface{}, error) {
+	thirdPartyySvc := services.NewThirdPartyAuthService(ctx)
+	thirdPartyySvc.Info("coming into RefreshAccessToken Controller")
+	return thirdPartyySvc.RefreshAccessToken()
 }

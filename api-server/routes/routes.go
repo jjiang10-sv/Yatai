@@ -25,8 +25,10 @@ import (
 	"github.com/bentoml/yatai/api-server/controllers/web"
 	"github.com/bentoml/yatai/api-server/models"
 	"github.com/bentoml/yatai/api-server/services"
+	const1 "github.com/bentoml/yatai/common/consts"
 	"github.com/bentoml/yatai/common/scookie"
 	"github.com/bentoml/yatai/common/utils"
+	"github.com/bentoml/yatai/common/utils/cache"
 	"github.com/bentoml/yatai/common/yataicontext"
 )
 
@@ -300,6 +302,7 @@ func NewRouter() (*fizz.Fizz, error) {
 
 func getLoginUser(ctx *gin.Context) (user *models.User, err error) {
 	apiTokenStr := ctx.GetHeader(consts.YataiApiTokenHeaderName)
+	userTokenStr := ctx.GetHeader(const1.YataiUserTokenHeaderName)
 
 	// nolint: gocritic
 	if apiTokenStr != "" {
@@ -328,6 +331,13 @@ func getLoginUser(ctx *gin.Context) (user *models.User, err error) {
 			return
 		}
 		user.ApiToken = apiToken
+	} else if userTokenStr != "" {
+		apiCache := cache.NewSingleCache()
+		if apiCache.IsUserTokenValid(userTokenStr) {
+			if apiCache.IsPermitted(userTokenStr,ctx.Request.URL.Path,ctx.Request.Method){
+				
+			}
+		}
 	} else {
 		username := scookie.GetUsernameFromCookie(ctx)
 		if username == "" {
@@ -404,6 +414,15 @@ func authRoutes(publicGrp *fizz.RouterGroup) {
 		fizz.ID("third party login"),
 		fizz.Summary("third party login"),
 	}, tonic.Handler(controllersv1.AuthController.ThirdPartyLogin, 200))
+	publicGrp.GET("/get-user-api-permissions", []fizz.OperationOption{
+		fizz.ID("get-user-api-permissions"),
+		fizz.Summary("get-user-api-permissions"),
+	}, tonic.Handler(controllersv1.AuthController.GetUserApiPermissonCrl, 200))
+
+	publicGrp.GET("/refresh_acess_token", []fizz.OperationOption{
+		fizz.ID("refresh_acess_token"),
+		fizz.Summary("refresh_acess_token"),
+	}, tonic.Handler(controllersv1.AuthController.RefreshAccessToken, 200))
 
 	grp.GET("/current", []fizz.OperationOption{
 		fizz.ID("Get current user"),
@@ -414,7 +433,11 @@ func authRoutes(publicGrp *fizz.RouterGroup) {
 		fizz.ID("Reset password"),
 		fizz.Summary("Reset password"),
 	}, tonic.Handler(controllersv1.AuthController.ResetPassword, 200))
-	
+	// grp.GET("/refresh_acess_token", []fizz.OperationOption{
+	// 	fizz.ID("refresh_acess_token"),
+	// 	fizz.Summary("refresh_acess_token"),
+	// }, tonic.Handler(controllersv1.AuthController.RefreshAccessToken, 200))
+
 }
 
 func userRoutes(grp *fizz.RouterGroup) {

@@ -15,7 +15,7 @@ import (
 
 	"github.com/google/go-querystring/query"
 
-	contextutil "github.com/bentoml/yatai/common/utils/context"
+	contextutil "github.com/bentoml/yatai/common/utils/contextutil"
 	"github.com/bentoml/yatai/common/utils/metrics"
 )
 
@@ -332,9 +332,9 @@ func NewRequestWithPromContextSpecial(
 	if err != nil {
 		return nil, err
 	}
-	if strings.Contains(reqUrl, "cloud.xxx.cn/sites?site_number=") {
-		reqUrl = strings.Replace(reqUrl, "?site_number=", "/", 1)
-	}
+	// if strings.Contains(reqUrl, "cloud.xxx.cn/sites?site_number=") {
+	// 	reqUrl = strings.Replace(reqUrl, "?site_number=", "/", 1)
+	// }
 	return postSetup(ctxRes, method, reqUrl, body)
 
 }

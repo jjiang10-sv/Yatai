@@ -20,6 +20,7 @@ require (
 	github.com/huandu/xstrings v1.3.3
 	github.com/iancoleman/strcase v0.2.0
 	github.com/invopop/jsonschema v0.7.0
+	github.com/jellydator/ttlcache/v3 v3.2.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/lib/pq v1.10.4
 	github.com/loopfz/gadgeto v0.11.2

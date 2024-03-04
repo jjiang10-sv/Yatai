@@ -43,20 +43,20 @@ func NewServiceContextWithValue(ctx context.Context, key ServiceContexts, val st
 	return context.WithValue(ctx, key, val)
 }
 
-type ReqContext struct {
-	context.Context
-	xid string
-	logx.ReqLogger
-}
+// type ReqContext struct {
+// 	context.Context
+// 	xid string
+// 	logx.ReqLogger
+// }
 
-func NewReqContext() ReqContext {
-	rc := ReqContext{
-		Context: context.Background(),
-		xid:     xidx.GenXid(),
-	}
-	rc.ReqLogger = logx.MustNewReqLogger(rc.xid)
-	return rc
-}
+// func NewReqContext() ReqContext {
+// 	rc := ReqContext{
+// 		Context: context.Background(),
+// 		xid:     xidx.GenXid(),
+// 	}
+// 	rc.ReqLogger = logx.MustNewReqLogger(rc.xid)
+// 	return rc
+// }
 
 func NewReqLogger() logx.ReqLogger {
 
