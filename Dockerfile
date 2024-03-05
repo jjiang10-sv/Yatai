@@ -21,8 +21,6 @@ WORKDIR /src/api-server
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./main.go
 RUN mkdir -p dist && \
     cp main dist 
-#RUN echo $(ls -1 dist)
-
 
 FROM alpine:3.16.0
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/bentoml/yatai-schemas/modelschemas"
 	"github.com/bentoml/yatai/api-server/models"
 	"github.com/bentoml/yatai/common/consts"
 	thirdpartyauth "github.com/bentoml/yatai/common/thirdPartyAuth"
@@ -13,6 +14,7 @@ import (
 	"github.com/bentoml/yatai/common/utils/cache"
 	"github.com/bentoml/yatai/common/utils/errorx"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
 	"github.com/bentoml/yatai/common/utils/logx"
@@ -136,22 +138,64 @@ func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdParty
 	if err != nil {
 		return nil, err
 	}
-	existUser, err := UserService.GetByName(t.GinContext,userInfo.PrUserName)
+	userInfo.PrUserName = "tester-0305"
+	existUser, err := UserService.GetByName(t.GinContext, userInfo.PrUserName)
 	if err != nil {
-		return nil, err
+		if err.Error() != "record not found" {
+			return nil, err
+		}
 	}
-	if existUser == nil{
-		_, err := UserService.Create(t.GinContext, CreateUserOption{
+	if existUser == nil {
+		user, err := UserService.Create(t.GinContext, CreateUserOption{
 			Name:      userInfo.PrUserName,
 			FirstName: userInfo.PrUserName,
-			LastName:  userInfo.PrUserName,
-			Email:     &userInfo.PrUserName,
+			//LastName:  userInfo.PrUserName,
+			Perm: modelschemas.UserPermPtr(modelschemas.UserPermAdmin),
 		})
 		if err != nil {
 			return nil, err
 		}
+
+		currentUser, err := UserService.GetByName(t.GinContext, "admin")
+		if err != nil {
+			return nil, errors.Wrap(err, "get current user")
+		}
+		org, err := OrganizationService.GetByName(t.GinContext, "default")
+		if err != nil {
+			return nil, errors.Wrap(err, "get organization")
+		}
+		// if err = OrganizationController.canOperate(ctx, org); err != nil {
+		// 	return nil, err
+		// }
+
+		_, err = OrganizationMemberService.Create(t.GinContext, currentUser.ID, CreateOrganizationMemberOption{
+			CreatorId:      currentUser.ID,
+			UserId:         user.ID,
+			OrganizationId: org.ID,
+			Role:           modelschemas.MemberRoleAdmin,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "create organization member")
+		}
+
+		majorCluster, err := OrganizationService.GetMajorCluster(t.GinContext, org)
+		if err != nil {
+			return nil, errors.Wrap(err, "get major cluster")
+		}
+
+		clusterRole := modelschemas.MemberRoleAdmin
+
+		_, err = ClusterMemberService.Create(t.GinContext, currentUser.ID, CreateClusterMemberOption{
+			CreatorId: currentUser.ID,
+			UserId:    user.ID,
+			ClusterId: majorCluster.ID,
+			Role:      clusterRole,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "create cluster member")
+		}
 	}
-	
+
 	// cache allowed api list
 	allowedApiList, err := t.GetUserApiPermissions(t.GinContext, accessToken.AccessToken, userToken.UserToken)
 	if err != nil {
@@ -176,7 +220,9 @@ func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdParty
 		ApiRecords: userApiListCache,
 		UserName:   userInfo.PrUserName,
 	})
-
+	// todo deal with the case of admin user. how to set the organization;
+	// isSaas as false, it will setup default admin/org/cluster; connect the idp admin to the defaul admin by
+	// updating the Username and add email address
 	return "success", nil
 
 }

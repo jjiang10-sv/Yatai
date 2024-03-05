@@ -33,6 +33,7 @@ type AuthClient interface {
 	RefreshAssesToken(ctx *gin.Context, refreshToken string) (*TokenContainer, error)
 	GetUserToken(ctx *gin.Context, code, accessToken string) (*UserTokenParams, error)
 	GetUserApiPermissions(ctx *gin.Context, accessToken, userToken string) (*[]AllowedApiList, error)
+	GetUserMenuPermissions(ctx *gin.Context) (*[]AllowedMenu, error)
 	GetUserInfoDetails(ctx *gin.Context, accessToken, userToken string) (*UserDetails, error)
 }
 
@@ -88,19 +89,6 @@ type UserTokenParams struct {
 	UserToken string `json:"user_token"`
 }
 
-// data"：
-// [{
-// ""：1，//安全级别
-// ""："GET"，//请求方式POSTGETPUT
-// ""："home"，//api名称
-// ""："/index"，//api路由
-// ""："xxxxxx"，//api编码
-// ""："0"，//父菜单编码
-// ""："http：//127.0.0.1"，//api域名
-// ""：9，//类型(9：接口)
-// ""："xxxxxx"//子平台clientid
-// }]，
-
 type GetUserApiPermissionsResponse struct {
 	Data     []AllowedApiList `json:"data"`
 	ErrCode  uint16           `json:"error_code"`
@@ -135,14 +123,6 @@ type AllowedMenu struct {
 	ClientId   string `json:"client_id"`
 }
 
-// ""：""，
-// ""：""，
-// ""：false，
-// ""：""，
-// ""：0，
-// ""：1，
-// ""：""，
-// ""：""
 
 type GetUserInfoDetailsResponse struct {
 	Data     UserDetails `json:"data"`

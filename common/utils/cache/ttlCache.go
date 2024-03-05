@@ -73,6 +73,9 @@ func (t *APICache) IsPermitted(userToken, apiPath, apiMethod string) bool {
 
 	// Replace "{apiCode}" with "apiCode"
 	apiPath = pattern.ReplaceAllString(apiPath, "$1")
+	
+	apiPath = strings.ReplaceAll(apiPath, "_", "")
+
 	apiMethod = strings.ToLower(apiMethod)
 
 	for _, item := range apiPermitted.Value().ApiRecords {
