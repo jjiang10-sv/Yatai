@@ -9,7 +9,9 @@ endif
 
 PKG := github.com/bentoml/yatai
 VERSION_BUILDFLAGS := -X '$(PKG)/api-server/version.GitCommit=$(GIT_COMMIT)' -X '$(PKG)/api-server/version.Version=$(VERSION)' -X '$(PKG)/api-server/version.BuildDate=$(BUILD_DATE)'
-DOCKER_REGISTRY := quay.io/rivertown1986
+#DOCKER_REGISTRY := quay.io/rivertown1986
+DOCKER_REGISTRY := 19860314
+
 
 BUILDER_IMG := $(DOCKER_REGISTRY)/yatai-builder:1.0
 UI_BUILDER_IMG := $(DOCKER_REGISTRY)/yatai-ui-builder:1.0
