@@ -9,7 +9,7 @@ import (
 	"github.com/bentoml/yatai-schemas/modelschemas"
 	"github.com/bentoml/yatai/api-server/models"
 	"github.com/bentoml/yatai/common/consts"
-	thirdpartyauth "github.com/bentoml/yatai/common/thirdPartyAuth"
+	thirdpartyauth "github.com/bentoml/yatai/common/thirdpartyAuth"
 	"github.com/bentoml/yatai/common/utils/bizerr"
 	"github.com/bentoml/yatai/common/utils/cache"
 	"github.com/bentoml/yatai/common/utils/errorx"

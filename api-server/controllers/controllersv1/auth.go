@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	thirdpartyauth "github.com/bentoml/yatai/common/thirdPartyAuth"
+	thirdpartyauth "github.com/bentoml/yatai/common/thirdpartyAuth"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 
