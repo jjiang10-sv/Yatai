@@ -42,6 +42,7 @@ RUN true
 #EXPOSE 8080
 #ENV MODULE_NAME=first
 USER deploy
+RUN chmod a+x /app/api-server
 
 
 ################
