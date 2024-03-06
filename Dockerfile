@@ -25,24 +25,16 @@ RUN mkdir -p dist && \
 FROM alpine:3.16.0
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk add ca-certificates tzdata curl
-#ARG MODULE_NAME
-RUN addgroup -S deploy && adduser -S deploy -G deploy
-ARG ROOT_DIR=/app
-WORKDIR ${ROOT_DIR}
-RUN chown deploy:deploy ${ROOT_DIR}
-RUN true
-COPY --from=frontendBuilder --chown=deploy:deploy /dashboard/build ./dashboard/build
-COPY --from=compiler --chown=deploy:deploy /src/api-server/dist ./api-server
-#COPY internal/first/app.env .
-#COPY --chown=deploy:deploy start.sh .  COPY ./api-server/db /app/db
-COPY --chown=deploy:deploy api-server/db ./db
-COPY --chown=deploy:deploy statics/ ./statics
-COPY --chown=deploy:deploy scripts/ ./scripts
-RUN true
-#EXPOSE 8080
-#ENV MODULE_NAME=first
-USER deploy
-RUN chmod a+x /app/api-server
+
+WORKDIR /app
+
+COPY --from=frontendBuilder  /dashboard/build ./dashboard/build
+COPY --from=compiler  /src/api-server/dist/main ./api-server
+COPY  api-server/db ./db
+COPY  statics/ ./statics
+COPY  scripts/ ./scripts
+
+RUN chmod a+x ./api-server
 
 
 ################
