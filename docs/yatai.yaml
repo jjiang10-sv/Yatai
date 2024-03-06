@@ -217,9 +217,9 @@ spec:
         - secretRef:
             name: yatai-env
         #image: quay.io/bentoml/yatai:1.1.13
-        # kubectl set image deployments/yatai yatai=quay.io/repository/rivertown1986/yatai:39ae445 -n yatai-system
+        # kubectl set image deployments/yatai yatai=quay.io/rivertown1986/yatai:39ae445 -n yatai-system
         # kubectl set image deployments/yatai yatai=quay.io/rivertown1986/yatai -n yatai-system
-        # kubectl set image deployments/yatai yatai=quay.io/bentoml/yatai:75d516d -n yatai-system
+        # kubectl set image deployments/yatai yatai=19860314/yatai:96730e4 -n yatai-system
         
         image: quay.io/rivertown1986/yatai:39ae445
         imagePullPolicy: IfNotPresent

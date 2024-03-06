@@ -27,7 +27,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
 RUN apk add ca-certificates tzdata curl
 #ARG MODULE_NAME
 RUN addgroup -S deploy && adduser -S deploy -G deploy
-ARG ROOT_DIR=/yatai
+ARG ROOT_DIR=/app
 WORKDIR ${ROOT_DIR}
 RUN chown deploy:deploy ${ROOT_DIR}
 RUN true
@@ -37,11 +37,26 @@ COPY --from=compiler --chown=deploy:deploy /src/api-server/dist ./api-server
 #COPY --chown=deploy:deploy start.sh .  COPY ./api-server/db /app/db
 COPY --chown=deploy:deploy api-server/db ./db
 COPY --chown=deploy:deploy statics/ ./statics
+COPY --chown=deploy:deploy scripts/ ./scripts
 RUN true
 #EXPOSE 8080
 #ENV MODULE_NAME=first
 USER deploy
 
-# ENTRYPOINT /yatai/api-server/main
+
+################
+# RUN mkdir /app
+
+# RUN mkdir -p /app/dashboard
+# RUN mkdir -p /app/scripts
+# COPY ./statics /app/statics
+# COPY ./dashboard/build /app/dashboard/build
+# COPY ./api-server/db /app/db
+# RUN echo $(ls -1 ./bin)
+# #COPY ./bin/api-server /app/api-server
+# COPY ./bin/bin /app/api-server
+# RUN chmod a+x /app/api-server
+
+# WORKDIR /app
 
 
