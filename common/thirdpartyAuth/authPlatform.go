@@ -12,7 +12,6 @@ import (
 
 	"github.com/bentoml/yatai/api-server/config"
 	"github.com/bentoml/yatai/common/clients"
-	"github.com/bentoml/yatai/common/consts"
 	"github.com/bentoml/yatai/common/utils/errorx"
 	"github.com/bentoml/yatai/common/utils/metrics"
 	"github.com/gin-gonic/gin"
@@ -33,8 +32,15 @@ type AuthClient interface {
 	RefreshAssesToken(ctx *gin.Context, refreshToken string) (*TokenContainer, error)
 	GetUserToken(ctx *gin.Context, code, accessToken string) (*UserTokenParams, error)
 	GetUserApiPermissions(ctx *gin.Context, accessToken, userToken string) (*[]AllowedApiList, error)
-	GetUserMenuPermissions(ctx *gin.Context) (*[]AllowedMenu, error)
+
 	GetUserInfoDetails(ctx *gin.Context, accessToken, userToken string) (*UserDetails, error)
+	GetUserMenuPermissions(ctx *gin.Context, accessToken, userToken string) (*[]AllowedMenu, error)
+}
+
+type UserInfoAndMenus struct {
+	UserDetails	
+	UserToken string `json:"userToken"`
+	MenuList *[]AllowedMenu	`json:"menuList"`
 }
 
 // AuthRedirectParams defines parameters for AuthRedirect.
@@ -112,8 +118,17 @@ type GetUserMenuPermissionsResponse struct {
 	ErrCode  uint16        `json:"error_code"`
 	ErrorMsg string        `json:"error_msg"`
 }
+
+// menuParent"："0"，//父菜单编码
+// "menuCode"："mmcc0001"，//菜单编码
+// "menuRouter"："/index"，
+// "menuName"："首页"，//菜单名称
+// "menuType"：0，//菜单类型0目录、1菜单、2按钮
+// "menuDomain"："http：//xxx"，//菜单域名
+// "menuIcon"："", //菜单icon
+// "client_id"："xxx"//子平台clientid
 type AllowedMenu struct {
-	MenuCode   uint   `json:"menuCode"`
+	MenuCode   string   `json:"menuCode"`
 	MenuRouter string `json:"menuRouter"`
 	MenuName   string `json:"menuName"`
 	MenuDomain string `json:"menuDomain"`
@@ -123,21 +138,20 @@ type AllowedMenu struct {
 	ClientId   string `json:"client_id"`
 }
 
-
 type GetUserInfoDetailsResponse struct {
-	Data     UserDetails `json:"data"`
+	Data UserDetails `json:"data"`
 	//Data     interface{} `json:"data"`
-	ErrCode  uint16      `json:"error_code"`
-	ErrorMsg string      `json:"error_msg"`
+	ErrCode  uint16 `json:"error_code"`
+	ErrorMsg string `json:"error_msg"`
 }
 type UserDetails struct {
-	IamOpenId   string   `json:"iam_openid"`
+	IamOpenId   string `json:"iam_openid"`
 	PrMobile    string `json:"prMobile"`
-	IsFrozen    bool `json:"isFrozen"`
+	IsFrozen    bool   `json:"isFrozen"`
 	PrUserName  string `json:"prUserName"`
-	PrStatus    uint `json:"prStatus"`
-	PrSex       uint `json:"prSex"`
-	PrUserEmail string   `json:"prUserEmail"`
+	PrStatus    uint   `json:"prStatus"`
+	PrSex       uint   `json:"prSex"`
+	PrUserEmail string `json:"prUserEmail"`
 	PrPinyin    string `json:"prPinyin"`
 }
 
@@ -243,21 +257,21 @@ func (a *authClient) GetUserApiPermissions(ctx *gin.Context, accessToken, userTo
 	return &res.Data, nil
 }
 
-func (a *authClient) GetUserMenuPermissions(ctx *gin.Context) (*[]AllowedMenu, error) {
+func (a *authClient) GetUserMenuPermissions(ctx *gin.Context, accessToken, userToken string) (*[]AllowedMenu, error) {
 
-	queries := ThirdPartyLoginAccessCode{AccessToken: ctx.GetHeader(consts.HeaderAccessToken)}
+	queries := ThirdPartyLoginAccessCode{AccessToken: accessToken}
 	body := GetClientsApiBodyParams{
-		ClientId:  ctx.GetHeader(config.YataiConfig.Oauth2.ClientID),
-		UserToken: ctx.GetHeader(consts.YataiUserTokenHeaderName),
+		ClientId:  config.YataiConfig.Oauth2.ClientID,
+		UserToken: userToken,
 	}
 
-	body_, err := httpPost(queries, body, "user/get_client_menus", " Get User Api Permissions", ctx, a.client)
+	body_, err := httpPost(queries, body, "user/get_client_menus", " Get User Menu Permissions", ctx, a.client)
 	if err != nil {
 		return nil, err
 	}
 	var res GetUserMenuPermissionsResponse
 	if e := json.NewDecoder(body_).Decode(&res); e != nil {
-		err = errorx.Errorf("get user menu list permissions failed")
+		err = errorx.Errorf("get user menu list permissions failed %s ",e)
 		return nil, err
 	}
 	return &res.Data, nil

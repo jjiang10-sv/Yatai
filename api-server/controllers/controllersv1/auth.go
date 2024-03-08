@@ -103,7 +103,7 @@ func (c *authController) OAuth2(ctx *gin.Context, params *thirdpartyauth.AuthPar
 //	{
 //		"code"："532380a0-38db-49b4-9f75-ae374181929f"//有效期30秒
 //	}
-func (c *authController) ThirdPartyLogin(ctx *gin.Context, params *thirdpartyauth.ThirdPartyLogin) (interface{}, error) {
+func (c *authController) ThirdPartyLogin(ctx *gin.Context, params *thirdpartyauth.ThirdPartyLogin) (*thirdpartyauth.UserInfoAndMenus, error) {
 	thirdPartyySvc := services.NewThirdPartyAuthService(ctx)
 	return thirdPartyySvc.ThirdPartyLogin(params)
 }

@@ -117,7 +117,8 @@ func (t thirdPartyAuthService) AuthRedirect(params thirdpartyauth.AuthRedirectPa
 	return url, nil
 }
 
-func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdPartyLogin) (interface{}, error) {
+
+func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdPartyLogin) (*thirdpartyauth.UserInfoAndMenus, error) {
 
 	accessToken, err := t.GetAssesToken(t.GinContext)
 	if err != nil {
@@ -220,10 +221,22 @@ func (t thirdPartyAuthService) ThirdPartyLogin(params *thirdpartyauth.ThirdParty
 		ApiRecords: userApiListCache,
 		UserName:   userInfo.PrUserName,
 	})
+	// ------------- this solution depreciated
 	// todo deal with the case of admin user. how to set the organization;
 	// isSaas as false, it will setup default admin/org/cluster; connect the idp admin to the defaul admin by
 	// updating the Username and add email address
-	return "success", nil
+
+	allowedMenus, err := t.GetUserMenuPermissions(t.GinContext,accessToken.AccessToken,userToken.UserToken)
+	if err != nil {
+		return nil, err
+	}
+	res := &thirdpartyauth.UserInfoAndMenus{
+		UserDetails: *userInfo,
+		MenuList: allowedMenus,
+		UserToken: userToken.UserToken,
+	}
+	
+	return res , nil
 
 }
 
